@@ -1,0 +1,52 @@
+﻿using Bibliotek.Models;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+
+namespace Bibliotek.Data
+{
+    public class LibraryDbContext : DbContext
+    {
+        public LibraryDbContext(DbContextOptions<LibraryDbContext> options) : base(options)
+        {
+
+
+        }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Book>().HasKey(b => b.ISBN); //Dumheter i koden gjorde att detta var nödvändigt.
+
+            modelBuilder.Entity<BookAuthor>().HasKey(ba => new { ba.AuthorID, ba.ISBN });
+            modelBuilder.Entity<BookAuthor>().HasOne(ba => ba.Book)
+                .WithMany(b => b.BookAuthors)
+                .HasForeignKey(ba => ba.ISBN);
+            modelBuilder.Entity<BookAuthor>().HasOne(ba => ba.Author)
+                .WithMany(a => a.BookAuthors)
+                .HasForeignKey(ba => ba.AuthorID);
+
+            modelBuilder.Entity<InventoryItem>().HasKey(i => i.InventoryID);
+            modelBuilder.Entity<InventoryItem>().HasOne(i => i.Book)
+                .WithMany(b => b.InventoryItems)
+                .HasForeignKey(i => i.ISBN);
+
+            modelBuilder.Entity<Borrowing>().HasKey(b => new { b.BorrowerID, b.InventoryID });
+            modelBuilder.Entity<Borrowing>().HasOne(b => b.Borrower)
+                .WithMany(b => b.Borrowings)
+                .HasForeignKey(b => b.BorrowerID);
+            modelBuilder.Entity<Borrowing>().HasOne(b => b.InventoryItem)
+                .WithOne(i => i.Borrowing)
+                .HasForeignKey((Borrowing b) => b.InventoryID); //Blir fel i koden om man inte specificerar när det gäller one-to-one.
+        }
+
+        public DbSet<Book> Books { get; set; }
+        public DbSet<Author> Authors { get; set; }
+        public DbSet<Borrower> Borrowers { get; set; }
+        public DbSet<InventoryItem> InventoryItems { get; set; }
+        public DbSet<Borrowing> Borrowings { get; set; }
+        public DbSet<BookAuthor>BookAuthors { get; set; }
+
+    }
+}
