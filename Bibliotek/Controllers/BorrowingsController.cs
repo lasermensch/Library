@@ -81,8 +81,13 @@ namespace Bibliotek.Controllers
         public async Task<ActionResult<Borrowing>> PostBorrowing(Borrowing borrowing)
         {
             _context.Borrowings.Add(borrowing);
+
             try
             {
+                await _context.SaveChangesAsync();
+                InventoryItem i = _context.InventoryItems.FirstOrDefault(i => i.InventoryID == borrowing.InventoryID); //För att se till att 
+                i.Available = false;                                                          //den aktuella boken står som icke tillgänglig
+                _context.InventoryItems.Update(i);                            //Note to self: se till att den flaggas om vid returndate...
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateException)

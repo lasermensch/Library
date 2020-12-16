@@ -33,11 +33,13 @@ namespace Bibliotek.Controllers
         public async Task<ActionResult<BookAuthor>> GetBookAuthor(int id)
         {
             var bookAuthor = await _context.BookAuthors.FindAsync(id);
-
+            
             if (bookAuthor == null)
             {
                 return NotFound();
             }
+            bookAuthor.Author = await _context.Authors.FirstOrDefaultAsync(a=>a.AuthorID == bookAuthor.AuthorID);
+            bookAuthor.Book = await _context.Books.FirstOrDefaultAsync(b => b.ISBN == bookAuthor.ISBN);
 
             return bookAuthor;
         }
@@ -109,7 +111,7 @@ namespace Bibliotek.Controllers
             {
                 return NotFound();
             }
-
+            
             _context.BookAuthors.Remove(bookAuthor);
             await _context.SaveChangesAsync();
 

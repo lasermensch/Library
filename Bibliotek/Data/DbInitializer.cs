@@ -109,7 +109,11 @@ namespace Bibliotek.Data
                 foreach (Borrowing b in borrowings) //Ifall jag vill lägga in flera i seedningen i framtiden... 
                 {
                     _context.Borrowings.Add(b);
+                    InventoryItem i = _context.InventoryItems.FirstOrDefault(i => i.InventoryID == b.InventoryID);
+                    i.Available = false;
+                    _context.InventoryItems.Update(i);
                 }
+
                 _context.SaveChanges();
             }
             
