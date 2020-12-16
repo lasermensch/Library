@@ -5,6 +5,28 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Controllers\InventoryItemsController.cs" />
+    <Compile Remove="Controllers\WeatherForecastController.cs" />
+    <Compile Remove="Migrations\20201214164223_init.cs" />
+    <Compile Remove="Migrations\20201214164223_init.Designer.cs" />
+    <Compile Remove="Migrations\20201215082646_migration2.cs" />
+    <Compile Remove="Migrations\20201215082646_migration2.Designer.cs" />
+    <Compile Remove="Migrations\20201215100329_secundus.cs" />
+    <Compile Remove="Migrations\20201215100329_secundus.Designer.cs" />
+    <Compile Remove="Migrations\20201215164526_test.cs" />
+    <Compile Remove="Migrations\20201215164526_test.Designer.cs" />
+    <Compile Remove="Migrations\20201215171834_test.cs" />
+    <Compile Remove="Migrations\20201215171834_test.Designer.cs" />
+    <Compile Remove="Migrations\20201215172216_test2.cs" />
+    <Compile Remove="Migrations\20201215172216_test2.Designer.cs" />
+    <Compile Remove="Migrations\20201215172452_secundus.cs" />
+    <Compile Remove="Migrations\20201215172452_secundus.Designer.cs" />
+    <Compile Remove="Migrations\LibraryDbContextModelSnapshot 1.cs" />
+    <Compile Remove="Models\Inventory.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Controllers\" />
     <Folder Include="Migrations\" />
   </ItemGroup>
 
