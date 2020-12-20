@@ -1,6 +1,7 @@
 ﻿using SQLitePCL;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
@@ -19,7 +20,10 @@ namespace Bibliotek.Models
         public int YearOfPublication { get; set; }
         [MaxLength(1)]
         public int? Grade { get; set; }
-        public ICollection<BookAuthor> BookAuthors { get; set; }//NavProp
-        public ICollection<InventoryItem> InventoryItems { get; set; } //NavProp
+        [DefaultValue(null)]
+        public virtual ICollection<BookAuthor> BookAuthors { get; set; }//NavProp
+        [DefaultValue(null)]
+
+        public virtual ICollection<InventoryItem> InventoryItems { get; set; } //NavProp
     }
 }

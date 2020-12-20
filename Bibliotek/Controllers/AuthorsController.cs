@@ -25,7 +25,11 @@ namespace Bibliotek.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Author>>> GetAuthors()
         {
-            return await _context.Authors.ToListAsync();
+            List<Author> authors = await _context.Authors.Include(author => author.BookAuthors)
+                .ThenInclude(ba =>  ba.Book)
+                .ThenInclude(b=>b.InventoryItems).ToListAsync();
+            
+            return authors;
         }
 
         // GET: api/Authors/5
@@ -38,7 +42,11 @@ namespace Bibliotek.Controllers
             {
                 return NotFound();
             }
-
+            
+            author.BookAuthors = await _context.BookAuthors
+                .Where(ba => ba.AuthorID == author.AuthorID)
+                .Include(ba=>ba.Book)
+                .ThenInclude(b=>b.InventoryItems).ToListAsync();
             return author;
         }
 

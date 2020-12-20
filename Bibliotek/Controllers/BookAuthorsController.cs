@@ -29,10 +29,10 @@ namespace Bibliotek.Controllers
         }
 
         // GET: api/BookAuthors/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<BookAuthor>> GetBookAuthor(int id)
+        [HttpGet("{authorid}/{isbn}")]
+        public async Task<ActionResult<BookAuthor>> GetBookAuthor(int authorid, string isbn)
         {
-            var bookAuthor = await _context.BookAuthors.FindAsync(id);
+            var bookAuthor = await _context.BookAuthors.FindAsync(authorid, isbn);
             
             if (bookAuthor == null)
             {
@@ -47,10 +47,10 @@ namespace Bibliotek.Controllers
         // PUT: api/BookAuthors/5
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutBookAuthor(int id, BookAuthor bookAuthor)
+        [HttpPut("{authorid}/{isbn}")]
+        public async Task<IActionResult> PutBookAuthor(int authorid, string isbn, BookAuthor bookAuthor)
         {
-            if (id != bookAuthor.AuthorID)
+            if (authorid != bookAuthor.AuthorID || isbn != bookAuthor.ISBN)
             {
                 return BadRequest();
             }
@@ -63,7 +63,7 @@ namespace Bibliotek.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!BookAuthorExists(id))
+                if (!BookAuthorExists(authorid, isbn))
                 {
                     return NotFound();
                 }
@@ -89,7 +89,7 @@ namespace Bibliotek.Controllers
             }
             catch (DbUpdateException)
             {
-                if (BookAuthorExists(bookAuthor.AuthorID))
+                if (BookAuthorExists(bookAuthor.AuthorID, bookAuthor.ISBN))
                 {
                     return Conflict();
                 }
@@ -103,10 +103,10 @@ namespace Bibliotek.Controllers
         }
 
         // DELETE: api/BookAuthors/5
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<BookAuthor>> DeleteBookAuthor(int id)
+        [HttpDelete("{authorid}/{isbn}")]
+        public async Task<ActionResult<BookAuthor>> DeleteBookAuthor(int authorid, string isbn)
         {
-            var bookAuthor = await _context.BookAuthors.FindAsync(id);
+            var bookAuthor = await _context.BookAuthors.FindAsync(authorid, isbn);
             if (bookAuthor == null)
             {
                 return NotFound();
@@ -118,9 +118,17 @@ namespace Bibliotek.Controllers
             return bookAuthor;
         }
 
-        private bool BookAuthorExists(int id)
+        private bool BookAuthorExists(int authorid, string isbn)
         {
-            return _context.BookAuthors.Any(e => e.AuthorID == id);
+            bool exists = false;
+            if(_context.BookAuthors.Any(e=>e.AuthorID == authorid))
+            {
+                if(_context.BookAuthors.FirstOrDefault(ba=>ba.AuthorID == authorid).ISBN == isbn)
+                {
+                    exists = true;
+                }
+            }
+            return exists;
         }
     }
 }

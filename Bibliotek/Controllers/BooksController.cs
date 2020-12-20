@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Bibliotek.Data;
 using Bibliotek.Models;
+using SQLitePCL;
 
 namespace Bibliotek.Controllers
 {
@@ -25,7 +26,26 @@ namespace Bibliotek.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
         {
-            return await _context.Books.ToListAsync();
+            var books = await _context.Books.Include(b => b.BookAuthors)
+                .ToListAsync();
+            var authors = await _context.Authors.ToListAsync();
+            var inventoryItems = await _context.InventoryItems.ToListAsync();
+            foreach (Book b in books)
+            {
+                foreach (BookAuthor ba in b.BookAuthors)
+                {
+                    Author a = await _context.Authors.FirstOrDefaultAsync(a => a.AuthorID == ba.AuthorID);
+                    ba.Author.AuthorID = a.AuthorID;
+                    ba.Author.FirstName = a.FirstName;
+                    ba.Author.LastName = a.LastName;
+                    a.BookAuthors = null; //TILL SLUT! Det är bättre att bara göra så här... Egentligen kan ju api:t skicka ALL information... Men om den ska vara lättöverskådlig så blir det här bättre.
+                                        //Fråga Fredrik om SYFTET med detta program.
+
+                }
+                b.InventoryItems = inventoryItems.FindAll(i => i.ISBN == b.ISBN);
+            }
+         
+            return books;
         }
 
         // GET: api/Books/5
@@ -33,10 +53,17 @@ namespace Bibliotek.Controllers
         public async Task<ActionResult<Book>> GetBook(string id)
         {
             var book = await _context.Books.FindAsync(id);
-
+            
             if (book == null)
             {
                 return NotFound();
+            }
+
+            book.BookAuthors = await _context.BookAuthors.Where(ba => ba.ISBN == id).ToListAsync();
+            book.InventoryItems = await _context.InventoryItems.Where(i => i.ISBN == id).ToListAsync();
+            foreach (BookAuthor ba in book.BookAuthors)
+            {
+                ba.Author = await _context.Authors.FindAsync(ba.AuthorID);
             }
 
             return book;
@@ -48,6 +75,7 @@ namespace Bibliotek.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutBook(string id, Book book)
         {
+
             if (id != book.ISBN)
             {
                 return BadRequest();

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
@@ -16,6 +17,8 @@ namespace Bibliotek.Models
         [Required]
         [Column(TypeName = "varchar(50)")]
         public string LastName { get; set; }
-        public ICollection<Borrowing> Borrowings { get; set; }
+        [DefaultValue(null)]
+
+        public virtual ICollection<Borrowing> Borrowings { get; set; }
     }
 }

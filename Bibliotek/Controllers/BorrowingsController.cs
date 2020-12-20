@@ -28,11 +28,11 @@ namespace Bibliotek.Controllers
             return await _context.Borrowings.ToListAsync();
         }
 
-        // GET: api/Borrowings/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Borrowing>> GetBorrowing(int id)
+        // GET: api/Borrowings/5/10
+        [HttpGet("{borrowerid}/{inventoryid}")]
+        public async Task<ActionResult<Borrowing>> GetBorrowing(int borrowerid, int inventoryid)
         {
-            var borrowing = await _context.Borrowings.FindAsync(id);
+            var borrowing = await _context.Borrowings.FindAsync(borrowerid, inventoryid);
 
             if (borrowing == null)
             {
@@ -42,26 +42,30 @@ namespace Bibliotek.Controllers
             return borrowing;
         }
 
-        // PUT: api/Borrowings/5
+        // PUT: api/Borrowings/5/10
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutBorrowing(int id, Borrowing borrowing)
+        
+        [HttpPut("{borrowerid}/{inventoryid}")]
+        public async Task<IActionResult> PutBorrowing(int borrowerid, int inventoryid, Borrowing borrowing)
         {
-            if (id != borrowing.BorrowerID)
+            if (borrowerid != borrowing.BorrowerID || inventoryid != borrowing.InventoryID)
             {
                 return BadRequest();
             }
-
+            
             _context.Entry(borrowing).State = EntityState.Modified;
-
+            InventoryItem item = await _context.InventoryItems.FirstOrDefaultAsync(i => i.InventoryID == inventoryid);
             try
             {
+                if (borrowing.ReturnDate != null) //I de allra flesta fall är nu boken återlämnad. 
+                    item.Available = true;    //Skulle väl vara i ev. klientprogrammet som säkerheten gällande returdatum ska skötas?
+
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!BorrowingExists(id))
+                if (!BorrowingExists(inventoryid, borrowerid))
                 {
                     return NotFound();
                 }
@@ -80,19 +84,22 @@ namespace Bibliotek.Controllers
         [HttpPost]
         public async Task<ActionResult<Borrowing>> PostBorrowing(Borrowing borrowing)
         {
+            InventoryItem item = await _context.InventoryItems.FirstOrDefaultAsync(i => i.InventoryID == borrowing.InventoryID);
+            if(!item.Available)
+            {
+                return BadRequest(); //?? Är detta det bästa i detta fall?
+            }
             _context.Borrowings.Add(borrowing);
 
             try
             {
-                await _context.SaveChangesAsync();
-                InventoryItem i = _context.InventoryItems.FirstOrDefault(i => i.InventoryID == borrowing.InventoryID); //För att se till att 
-                i.Available = false;                                                          //den aktuella boken står som icke tillgänglig
-                _context.InventoryItems.Update(i);                            //Note to self: se till att den flaggas om vid returndate...
+                 item.Available = false;                                                
+                _context.InventoryItems.Update(item);                    
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateException)
             {
-                if (BorrowingExists(borrowing.BorrowerID))
+                if (BorrowingExists(borrowing.InventoryID, borrowing.BorrowerID))
                 {
                     return Conflict();
                 }
@@ -105,11 +112,11 @@ namespace Bibliotek.Controllers
             return CreatedAtAction("GetBorrowing", new { id = borrowing.BorrowerID }, borrowing);
         }
 
-        // DELETE: api/Borrowings/5
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<Borrowing>> DeleteBorrowing(int id)
+        // DELETE: api/Borrowings/5/7
+        [HttpDelete("{borrowerid}/{inventoryid}")]
+        public async Task<ActionResult<Borrowing>> DeleteBorrowing(int borrowerid, int inventoryid)
         {
-            var borrowing = await _context.Borrowings.FindAsync(id);
+            var borrowing = await _context.Borrowings.FindAsync(borrowerid, inventoryid);
             if (borrowing == null)
             {
                 return NotFound();
@@ -121,9 +128,18 @@ namespace Bibliotek.Controllers
             return borrowing;
         }
 
-        private bool BorrowingExists(int id)
+        private bool BorrowingExists(int inventoryid, int borrowerid)
         {
-            return _context.Borrowings.Any(e => e.BorrowerID == id);
+            bool exists = false;
+            if(_context.Borrowings.Any(e => e.BorrowerID == borrowerid))
+            {
+                if(_context.Borrowings.FirstOrDefault(e=>e.BorrowerID == borrowerid).InventoryID == inventoryid)
+                {
+                    exists = true;
+                }
+            }
+
+            return exists;
         }
     }
 }

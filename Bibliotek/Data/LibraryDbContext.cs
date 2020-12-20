@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 
+
 namespace Bibliotek.Data
 {
     public class LibraryDbContext : DbContext
@@ -15,6 +16,7 @@ namespace Bibliotek.Data
 
 
         }
+        
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Book>().HasKey(b => b.ISBN); //Dumheter i koden gjorde att detta var nödvändigt.
@@ -38,8 +40,9 @@ namespace Bibliotek.Data
                 .HasForeignKey(b => b.BorrowerID);
             modelBuilder.Entity<Borrowing>().HasOne(b => b.InventoryItem)
                 .WithOne(i => i.Borrowing)
-                .HasForeignKey((Borrowing b) => b.InventoryID); //Blir fel i koden om man inte specificerar när det gäller one-to-one.
+                .HasForeignKey<Borrowing>(b => b.InventoryID); //Blir fel i koden om man inte specificerar när det gäller one-to-one.
         }
+        
 
         public DbSet<Book> Books { get; set; }
         public DbSet<Author> Authors { get; set; }

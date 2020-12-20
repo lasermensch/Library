@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
@@ -19,7 +20,11 @@ namespace Bibliotek.Models
         
         [Column(TypeName = "date")]
         public DateTime? ReturnDate { get; set; } //Det verkar som att variablers natur avgör om korresponderande kolumn i db blir nullable etc. Om inget annat är specificerat.
-        public InventoryItem InventoryItem { get; set; } //NavProp
-        public Borrower Borrower { get; set; } //NavProp
+        [DefaultValue(null)]
+
+        public virtual InventoryItem InventoryItem { get; set; } //NavProp
+        [DefaultValue(null)]
+
+        public virtual Borrower Borrower { get; set; } //NavProp
     }
 }
