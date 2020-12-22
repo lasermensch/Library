@@ -40,7 +40,12 @@ namespace Bibliotek.Data
                 .HasForeignKey(b => b.BorrowerID);
             modelBuilder.Entity<Borrowing>().HasOne(b => b.InventoryItem)
                 .WithOne(i => i.Borrowing)
-                .HasForeignKey<Borrowing>(b => b.InventoryID); //Blir fel i koden om man inte specificerar när det gäller one-to-one.
+                .HasForeignKey<Borrowing>(b => b.InventoryID);//Blir fel i koden om man inte specificerar när det gäller one-to-one.
+            modelBuilder.Entity<Borrowing>().HasIndex(b => b.InventoryID).IsUnique(false); //Den förutsatte att tabellen skulle indexeras på 
+                                                                                          //inventoryID och vara unik. Denna inställning tar
+                                                                                         //bort uniciteten. Jag känner inget behov av att bry mig
+                                                                                          //om att den fortfarande indexerar på den egenskapen.
+
         }
         
 

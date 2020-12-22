@@ -82,7 +82,47 @@ namespace Bibliotek.Controllers
         [HttpPost]
         public async Task<ActionResult<BookAuthor>> PostBookAuthor(BookAuthor bookAuthor)
         {
-            _context.BookAuthors.Add(bookAuthor);
+            if(bookAuthor.AuthorID == 0 && bookAuthor.Author != null)
+            {
+                Author author = bookAuthor.Author;
+                bookAuthor.AuthorID = author.AuthorID;
+
+                if (!_context.Authors.Any(a => a.AuthorID == author.AuthorID))
+                {
+                    await _context.Authors.AddAsync(author);
+                    try
+                    {
+                        await _context.SaveChangesAsync();
+                    }
+                    catch (Exception)
+                    {
+
+                        throw;
+                    }
+                }
+            }
+            if(bookAuthor.ISBN == null && bookAuthor.Book != null)
+            {
+                Book book = bookAuthor.Book;
+                bookAuthor.ISBN = book.ISBN;
+
+                if (!_context.Books.Any(b => b.ISBN == book.ISBN))
+                {
+                    await _context.Books.AddAsync(book);
+
+                    try
+                    {
+                        await _context.SaveChangesAsync();
+                    }
+                    catch (Exception)
+                    {
+
+                        throw;
+                    }
+                }
+            }
+
+            await _context.BookAuthors.AddAsync(bookAuthor);
             try
             {
                 await _context.SaveChangesAsync();
@@ -99,7 +139,7 @@ namespace Bibliotek.Controllers
                 }
             }
 
-            return CreatedAtAction("GetBookAuthor", new { id = bookAuthor.AuthorID }, bookAuthor);
+            return Ok();
         }
 
         // DELETE: api/BookAuthors/5
@@ -130,5 +170,7 @@ namespace Bibliotek.Controllers
             }
             return exists;
         }
+
+        
     }
 }

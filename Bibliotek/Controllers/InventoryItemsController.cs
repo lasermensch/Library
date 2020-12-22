@@ -25,7 +25,27 @@ namespace Bibliotek.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<InventoryItem>>> GetInventoryItems()
         {
-            return await _context.InventoryItems.ToListAsync();
+            var inventoryItems = await _context.InventoryItems
+                .Include(inventoryItems=>inventoryItems.Book)
+                .ThenInclude(book=>book.BookAuthors).ToListAsync();
+            foreach (InventoryItem i in inventoryItems)
+            {
+                foreach (BookAuthor ba in i.Book.BookAuthors)
+                {
+                    Author a = await _context.Authors.FirstOrDefaultAsync(a => a.AuthorID == ba.AuthorID);
+                    ba.Author.AuthorID = a.AuthorID;
+                    ba.Author.FirstName = a.FirstName;
+                    ba.Author.LastName = a.LastName;
+                    ba.Author.BookAuthors = null;
+                }
+                i.Book.InventoryItems = null;
+                if(!i.Available)
+                {
+                    i.Borrowing = await _context.Borrowings.FirstOrDefaultAsync(b=>b.InventoryID == i.InventoryID);
+                    i.Borrowing.Borrower = await _context.Borrowers.FindAsync(i.Borrowing.BorrowerID);
+                }
+            }
+            return inventoryItems;
         }
 
         // GET: api/InventoryItems/5
@@ -38,6 +58,10 @@ namespace Bibliotek.Controllers
             {
                 return NotFound();
             }
+
+            inventoryItem.Book = await _context.Books.FindAsync(inventoryItem.ISBN);
+            inventoryItem.Book.BookAuthors = await _context.BookAuthors.Where(bookAuthor => bookAuthor.ISBN == inventoryItem.ISBN)
+                .Include(bookAuthor => bookAuthor.Author).ToListAsync();
 
             return inventoryItem;
         }

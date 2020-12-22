@@ -17,9 +17,10 @@ namespace Bibliotek.Models
         //[Newtonsoft.Json.JsonIgnore] 
         [Column(TypeName ="char(13)")]
         public string ISBN { get; set; } //FK
-        
+
+        [DefaultValue(null)]
         public virtual Author Author { get; set; } //NavProp
-        
+        [DefaultValue(null)]
         public virtual Book Book { get; set; } //NavProp
 
         //Problemet är inte att den upprepar information, utan varje tur igenom ses som en unik sökväg...

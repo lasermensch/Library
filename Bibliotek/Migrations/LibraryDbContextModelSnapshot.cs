@@ -45,8 +45,7 @@ namespace Bibliotek.Migrations
                         .HasColumnType("char(13)");
 
                     b.Property<int?>("Grade")
-                        .HasColumnType("int")
-                        .HasMaxLength(1);
+                        .HasColumnType("int");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -109,10 +108,12 @@ namespace Bibliotek.Migrations
                     b.Property<DateTime?>("ReturnDate")
                         .HasColumnType("date");
 
+                    b.Property<bool>("rated")
+                        .HasColumnType("bit");
+
                     b.HasKey("BorrowerID", "InventoryID");
 
-                    b.HasIndex("InventoryID")
-                        .IsUnique();
+                    b.HasIndex("InventoryID");
 
                     b.ToTable("Borrowings");
                 });

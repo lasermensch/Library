@@ -87,7 +87,7 @@ namespace Bibliotek.Controllers
             InventoryItem item = await _context.InventoryItems.FirstOrDefaultAsync(i => i.InventoryID == borrowing.InventoryID);
             if(!item.Available)
             {
-                return BadRequest(); //?? Är detta det bästa i detta fall?
+                return BadRequest("Item not available."); //?? Är detta det bästa i detta fall?
             }
             _context.Borrowings.Add(borrowing);
 

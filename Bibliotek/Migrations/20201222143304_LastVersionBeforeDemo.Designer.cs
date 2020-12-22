@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Bibliotek.Migrations
 {
     [DbContext(typeof(LibraryDbContext))]
-    [Migration("20201217094929_VirtualNavigation")]
-    partial class VirtualNavigation
+    [Migration("20201222143304_LastVersionBeforeDemo")]
+    partial class LastVersionBeforeDemo
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -47,8 +47,7 @@ namespace Bibliotek.Migrations
                         .HasColumnType("char(13)");
 
                     b.Property<int?>("Grade")
-                        .HasColumnType("int")
-                        .HasMaxLength(1);
+                        .HasColumnType("int");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -111,10 +110,12 @@ namespace Bibliotek.Migrations
                     b.Property<DateTime?>("ReturnDate")
                         .HasColumnType("date");
 
+                    b.Property<bool>("rated")
+                        .HasColumnType("bit");
+
                     b.HasKey("BorrowerID", "InventoryID");
 
-                    b.HasIndex("InventoryID")
-                        .IsUnique();
+                    b.HasIndex("InventoryID");
 
                     b.ToTable("Borrowings");
                 });

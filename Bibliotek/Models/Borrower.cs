@@ -18,7 +18,6 @@ namespace Bibliotek.Models
         [Column(TypeName = "varchar(50)")]
         public string LastName { get; set; }
         [DefaultValue(null)]
-
         public virtual ICollection<Borrowing> Borrowings { get; set; }
     }
 }

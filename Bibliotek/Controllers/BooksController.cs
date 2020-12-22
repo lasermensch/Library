@@ -26,21 +26,16 @@ namespace Bibliotek.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
         {
-            var books = await _context.Books.Include(b => b.BookAuthors)
-                .ToListAsync();
-            var authors = await _context.Authors.ToListAsync();
-            var inventoryItems = await _context.InventoryItems.ToListAsync();
+            var books = await _context.Books.Include(book => book.BookAuthors)
+                .ThenInclude(bookAuthor=>bookAuthor.Author).ToListAsync();
+            
+            var inventoryItems = await _context.InventoryItems.ToListAsync(); //Eftersom den behöver gå i två riktningar blir det inte bättre än om
+                                                                              //man gör så här.
             foreach (Book b in books)
             {
                 foreach (BookAuthor ba in b.BookAuthors)
                 {
-                    Author a = await _context.Authors.FirstOrDefaultAsync(a => a.AuthorID == ba.AuthorID);
-                    ba.Author.AuthorID = a.AuthorID;
-                    ba.Author.FirstName = a.FirstName;
-                    ba.Author.LastName = a.LastName;
-                    a.BookAuthors = null; //TILL SLUT! Det är bättre att bara göra så här... Egentligen kan ju api:t skicka ALL information... Men om den ska vara lättöverskådlig så blir det här bättre.
-                                        //Fråga Fredrik om SYFTET med detta program.
-
+                    ba.Author.BookAuthors = null; //Enklaste sättet att hindra den från att spotta ut alla andra böcker som författaren har skrivit.
                 }
                 b.InventoryItems = inventoryItems.FindAll(i => i.ISBN == b.ISBN);
             }
@@ -143,6 +138,7 @@ namespace Bibliotek.Controllers
 
             return book;
         }
+        
 
         private bool BookExists(string id)
         {
