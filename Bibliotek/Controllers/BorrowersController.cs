@@ -175,6 +175,11 @@ namespace Bibliotek.Controllers
             borrowing.ReturnDate = DateTime.Now;
             var item = await _context.InventoryItems.FirstOrDefaultAsync(i => i.InventoryID == borrowing.InventoryID);
             item.Available = true;
+            if (book.Grade != null)
+            {
+                await LeaveAGrade(book.ISBN, book.Grade);
+                borrowing.Rated = true;
+            }
             try
             {
                 _context.Entry(item).State = EntityState.Modified;
@@ -186,16 +191,16 @@ namespace Bibliotek.Controllers
 
                 throw;
             }
-            if(book.Grade != null)
-                await LeaveAGrade(book.ISBN, book.Grade);
+            
             return Ok();
         }
         private async Task LeaveAGrade(string isbn, int? grade)
         {
             var book = await _context.Books.FindAsync(isbn);
-            var borrowings = await _context.Borrowings.Include(b => b.InventoryItem).Where(b => b.InventoryItem.ISBN == isbn && b.ReturnDate != null).ToListAsync();
-            int? circulation = borrowings.Count;
-            if (circulation < 2 || circulation == null)
+            var borrowings = await _context.Borrowings.Include(b => b.InventoryItem)
+                .Where(b => b.InventoryItem.ISBN == isbn && b.ReturnDate != null && b.Rated == true).ToListAsync();
+            int circulation = borrowings.Count;
+            if (circulation < 2)
                 circulation = 2;
              
             book.Grade = (grade + (book.Grade * (circulation - 1)) )/ circulation;

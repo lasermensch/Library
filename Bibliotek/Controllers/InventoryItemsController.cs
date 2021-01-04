@@ -42,7 +42,7 @@ namespace Bibliotek.Controllers
                 if(!i.Available)
                 {
                     i.Borrowing = await _context.Borrowings.FirstOrDefaultAsync(b=>b.InventoryID == i.InventoryID);
-                    i.Borrowing.Borrower = await _context.Borrowers.FindAsync(i.Borrowing.BorrowerID);
+                    i.Borrowing.Borrower = await _context.Borrowers.FirstOrDefaultAsync(b => b.BorrowerID == i.Borrowing.BorrowerID);
                 }
             }
             return inventoryItems;

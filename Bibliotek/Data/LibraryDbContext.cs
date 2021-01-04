@@ -19,7 +19,7 @@ namespace Bibliotek.Data
         
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Book>().HasKey(b => b.ISBN); //Dumheter i koden gjorde att detta var nödvändigt.
+            modelBuilder.Entity<Book>().HasKey(b => b.ISBN); //istället för att använda attribut i modellklassen.
 
             modelBuilder.Entity<BookAuthor>().HasKey(ba => new { ba.AuthorID, ba.ISBN });
             modelBuilder.Entity<BookAuthor>().HasOne(ba => ba.Book)

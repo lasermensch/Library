@@ -85,6 +85,10 @@ namespace Bibliotek.Controllers
         public async Task<ActionResult<Borrowing>> PostBorrowing(Borrowing borrowing)
         {
             InventoryItem item = await _context.InventoryItems.FirstOrDefaultAsync(i => i.InventoryID == borrowing.InventoryID);
+            if(borrowing == null || item == null)
+            {
+                return NotFound();
+            }
             if(!item.Available)
             {
                 return BadRequest("Item not available."); //?? Är detta det bästa i detta fall?
@@ -121,6 +125,9 @@ namespace Bibliotek.Controllers
             {
                 return NotFound();
             }
+            var item = await _context.InventoryItems.FindAsync(inventoryid);
+            item.Available = true;
+            _context.Entry(item).State = EntityState.Modified;
 
             _context.Borrowings.Remove(borrowing);
             await _context.SaveChangesAsync();

@@ -19,7 +19,6 @@ namespace Bibliotek.Models
         public string Title { get; set; }
         [Required]
         public int YearOfPublication { get; set; }
-        
         public int? Grade { get; set; } //I framtiden: float?
         [DefaultValue(null)]
         public virtual ICollection<BookAuthor> BookAuthors { get; set; }//NavProp
