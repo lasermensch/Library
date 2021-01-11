@@ -51,9 +51,10 @@ namespace Bibliotek.Data
             {
                 Borrower[] borrowers = new Borrower[]
                 {
-                    new Borrower{FirstName="Fredrik", LastName="Lindroth"},
-                    new Borrower{FirstName="Jonatan", LastName="Hallenberg"},
-                    new Borrower{FirstName="Erik", LastName="Sundberg"}
+                    new Borrower{FirstName="Fredrik", LastName="Lindroth", Email = "fredrik@lindroth.test", PhoneNumber="0701740605", Address="123 addressvägen, 000 00 Ingenstad"},
+                    new Borrower{FirstName="Jonatan", LastName="Hallenberg", Email = "jonatan@hallenberg.test", PhoneNumber="0701740606", Address="124 addressvägen, 000 00 Ingenstad"},
+                    new Borrower{FirstName="Erik", LastName="Sundberg", Email = "erik@sundberg.test", PhoneNumber="0701740607", Address="125 addressvägen, 000 00 Ingenstad"},
+                    new Borrower{FirstName="Anna-Mia", LastName="Fors", Email = "annamia@fors.test", PhoneNumber="0701740607", Address="126 addressvägen, 000 00 Ingenstad"}
                 };
                 foreach (Borrower b in borrowers)
                 {

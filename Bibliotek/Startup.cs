@@ -59,6 +59,8 @@ namespace Bibliotek
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+
+                //Här KAN kod för mvc implementeras.
             });
         }
     }

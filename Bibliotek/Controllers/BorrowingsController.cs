@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Bibliotek.Data;
 using Bibliotek.Models;
+using Bibliotek.Models.DataTransferObjects;
 
 namespace Bibliotek.Controllers
 {
@@ -20,12 +21,60 @@ namespace Bibliotek.Controllers
         {
             _context = context;
         }
+        //GET: api/Borrowings/UnreturnedItems
+        [HttpGet("unreturneditems")]
+        public async Task<ActionResult<IEnumerable<UnreturnedItemDTO>>> GetUnreturnedItems()
+        {
+            var unreturnedItemDTOs = new List<UnreturnedItemDTO>();
+
+            var borrowings = await _context.Borrowings.Where(b=>b.ReturnDate == null).Include(borrowing => borrowing.InventoryItem) //Skickar relevant information vid begäran.
+                .ThenInclude(inventoryItem => inventoryItem.Book)
+                .ThenInclude(book => book.BookAuthors)
+                .ThenInclude(bookAuthor => bookAuthor.Author).ToListAsync();
+            foreach (Borrowing b in borrowings)
+            {
+                b.Borrower = await _context.Borrowers.FirstOrDefaultAsync(borrower => borrower.BorrowerID == b.BorrowerID);
+
+                UnreturnedItemDTO dto = new UnreturnedItemDTO();
+                dto.AuthorName = "";
+                foreach (BookAuthor ba in b.InventoryItem.Book.BookAuthors)
+                {
+                    dto.AuthorName += $"{ba.Author.FirstName} {ba.Author.LastName}, ";
+                }
+                dto.AuthorName = dto.AuthorName.Trim(' ', ',');
+                dto.ISBN = b.InventoryItem.ISBN;
+                dto.Title = b.InventoryItem.Book.Title;
+                dto.InventoryID = b.InventoryID.ToString();
+
+                dto.BorrowDate = b.BorrowDate.ToString("yyyy-MM-dd");
+                dto.ExpectedReturnDate = b.BorrowDate.AddDays(28).ToString("yyyy-MM-dd");
+
+                dto.BorrowerID = b.BorrowerID.ToString();
+                dto.BorrowerFullName = $"{b.Borrower.FirstName} {b.Borrower.LastName}";
+                dto.Email = b.Borrower.Email;
+                dto.PhoneNumber = b.Borrower.PhoneNumber;
+                dto.Address = b.Borrower.Address;
+
+                unreturnedItemDTOs.Add(dto);
+
+            }
+
+            return unreturnedItemDTOs;
+        }
 
         // GET: api/Borrowings
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Borrowing>>> GetBorrowings()
         {
-            return await _context.Borrowings.ToListAsync();
+            var borrowings = await _context.Borrowings.Include(borrowing=>borrowing.InventoryItem) //Skickar relevant information vid begäran.
+                .ThenInclude(inventoryItem=>inventoryItem.Book)
+                .ThenInclude(book=>book.BookAuthors)
+                .ThenInclude(bookAuthor=>bookAuthor.Author).ToListAsync();
+            foreach (Borrowing b in borrowings)
+            {
+                b.Borrower = await _context.Borrowers.FirstOrDefaultAsync(borrower => borrower.BorrowerID == b.BorrowerID);
+            }
+            return borrowings;
         }
 
         // GET: api/Borrowings/5/10
