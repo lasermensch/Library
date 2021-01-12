@@ -1,12 +1,11 @@
-﻿using System;
+﻿using Library.Data;
+using Library.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Library.Data;
-using Library.Models;
 
 namespace Library.Controllers
 {
@@ -50,9 +49,9 @@ namespace Library.Controllers
         [HttpPut("{authorid}/{isbn}")]
         public async Task<IActionResult> PutBookAuthor(int authorid, string isbn, BookAuthor bookAuthor)
         {
-            if (authorid != bookAuthor.AuthorID || isbn != bookAuthor.ISBN)
+            if (authorid != bookAuthor.AuthorID || isbn != bookAuthor.ISBN || !ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(ModelState.SelectMany(x => x.Value.Errors));
             }
 
             _context.Entry(bookAuthor).State = EntityState.Modified;
@@ -80,11 +79,16 @@ namespace Library.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPost]
-        public async Task<ActionResult<BookAuthor>> PostBookAuthor(BookAuthor bookAuthor)
+        public async Task<ActionResult<BookAuthor>> PostBookAuthor(BookAuthor bookAuthor) //Denna kan smälla... högt.
         {
-            if(bookAuthor.AuthorID == 0 && bookAuthor.Author != null)
+            if(!ModelState.IsValid) //Denna gäller enbart nav-propparna.
+            {
+                return BadRequest(ModelState.SelectMany(x => x.Value.Errors)); 
+            }
+            if (bookAuthor.AuthorID <= 0 && bookAuthor.Author != null)
             {
                 Author author = bookAuthor.Author;
+                
                 bookAuthor.AuthorID = author.AuthorID;
 
                 if (!_context.Authors.Any(a => a.AuthorID == author.AuthorID))
@@ -109,7 +113,6 @@ namespace Library.Controllers
                 if (!_context.Books.Any(b => b.ISBN == book.ISBN))
                 {
                     await _context.Books.AddAsync(book);
-
                     try
                     {
                         await _context.SaveChangesAsync();

@@ -1,20 +1,18 @@
-﻿using Library.Controllers;
-using Library.Data;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
+
 
 namespace Library.Models
 {
     public class InventoryItem
     {
+        [Required]
         public int InventoryID { get; set; }
         [Column(TypeName = "char(13)")]
+        [Required]
         public string ISBN { get; set; } //FK
-        public bool Available { get; set; } = true; //hmm... I en eventuell framtida version är det värt att byta ut denna egenskap/kolumn...
+        public bool Available { get; set; } = true; //När ett föremål läggs till är det bra om default-värdet är true på denna.
 
         
         [DefaultValue(null)]

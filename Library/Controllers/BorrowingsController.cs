@@ -1,13 +1,11 @@
-﻿using System;
+﻿using Library.Data;
+using Library.Models;
+using Library.Models.DataTransferObjects;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Library.Data;
-using Library.Models;
-using Library.Models.DataTransferObjects;
 
 namespace Library.Controllers
 {
@@ -98,9 +96,9 @@ namespace Library.Controllers
         [HttpPut("{borrowerid}/{inventoryid}")]
         public async Task<IActionResult> PutBorrowing(int borrowerid, int inventoryid, Borrowing borrowing)
         {
-            if (borrowerid != borrowing.BorrowerID || inventoryid != borrowing.InventoryID)
+            if (borrowerid != borrowing.BorrowerID || inventoryid != borrowing.InventoryID || !ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(ModelState.SelectMany(x => x.Value.Errors));
             }
             
             _context.Entry(borrowing).State = EntityState.Modified;

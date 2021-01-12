@@ -1,13 +1,10 @@
-﻿using System;
+﻿using Library.Data;
+using Library.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Library.Data;
-using Library.Models;
-using SQLitePCL;
 
 namespace Library.Controllers
 {
@@ -71,9 +68,9 @@ namespace Library.Controllers
         public async Task<IActionResult> PutBook(string id, Book book)
         {
 
-            if (id != book.ISBN)
+            if (id != book.ISBN || !ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(ModelState.SelectMany(x => x.Value.Errors));
             }
 
             _context.Entry(book).State = EntityState.Modified;
@@ -103,6 +100,10 @@ namespace Library.Controllers
         [HttpPost]
         public async Task<ActionResult<Book>> PostBook(Book book)
         {
+            if(!ModelState.IsValid)
+            {
+                return BadRequest(ModelState.SelectMany(x => x.Value.Errors));
+            }
             _context.Books.Add(book);
             try
             {

@@ -1,12 +1,11 @@
-﻿using System;
+﻿using Library.Data;
+using Library.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Library.Data;
-using Library.Models;
 
 namespace Library.Controllers
 {
@@ -57,9 +56,9 @@ namespace Library.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutBorrower(int id, Borrower borrower)
         {
-            if (id != borrower.BorrowerID)
+            if (id != borrower.BorrowerID || !ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(ModelState.SelectMany(x => x.Value.Errors));
             }
 
             _context.Entry(borrower).State = EntityState.Modified;
@@ -89,6 +88,10 @@ namespace Library.Controllers
         [HttpPost]
         public async Task<ActionResult<Borrower>> PostBorrower(Borrower borrower)
         {
+            if(!ModelState.IsValid)
+            {
+                return BadRequest(ModelState.SelectMany(x => x.Value.Errors));
+            }
             _context.Borrowers.Add(borrower);
             await _context.SaveChangesAsync();
 

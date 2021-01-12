@@ -1,12 +1,10 @@
-﻿using System;
+﻿using Library.Data;
+using Library.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Library.Data;
-using Library.Models;
 
 namespace Library.Controllers
 {
@@ -72,9 +70,9 @@ namespace Library.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutInventoryItem(int id, InventoryItem inventoryItem)
         {
-            if (id != inventoryItem.InventoryID)
+            if (id != inventoryItem.InventoryID || !ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(ModelState.SelectMany(x => x.Value.Errors));
             }
 
             _context.Entry(inventoryItem).State = EntityState.Modified;
@@ -104,6 +102,10 @@ namespace Library.Controllers
         [HttpPost]
         public async Task<ActionResult<InventoryItem>> PostInventoryItem(InventoryItem inventoryItem)
         {
+            if(!ModelState.IsValid)
+            {
+                return BadRequest(ModelState.SelectMany(x => x.Value.Errors));
+            }
             _context.InventoryItems.Add(inventoryItem);
             await _context.SaveChangesAsync();
 

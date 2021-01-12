@@ -1,12 +1,10 @@
-﻿using System;
+﻿using Library.Data;
+using Library.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Library.Data;
-using Library.Models;
 
 namespace Library.Controllers
 {
@@ -56,10 +54,11 @@ namespace Library.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutAuthor(int id, Author author)
         {
-            if (id != author.AuthorID)
+            if (id != author.AuthorID || !ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(ModelState.SelectMany(x => x.Value.Errors));
             }
+            
 
             _context.Entry(author).State = EntityState.Modified;
 
@@ -88,6 +87,10 @@ namespace Library.Controllers
         [HttpPost]
         public async Task<ActionResult<Author>> PostAuthor(Author author)
         {
+            if(!ModelState.IsValid)
+            {
+                return BadRequest(ModelState.SelectMany(x => x.Value.Errors));
+            }
             _context.Authors.Add(author);
             await _context.SaveChangesAsync();
 

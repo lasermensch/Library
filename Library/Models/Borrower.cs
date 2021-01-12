@@ -1,15 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
+
 
 namespace Library.Models
 {
     public class Borrower
     {
+        [Required]
         public int BorrowerID { get; set; }
         [Required]
         [Column(TypeName ="varchar(50)")]
@@ -25,6 +24,6 @@ namespace Library.Models
         public string Address { get; set; }
 
         [DefaultValue(null)]
-        public virtual ICollection<Borrowing> Borrowings { get; set; }
+        public virtual ICollection<Borrowing> Borrowings { get; set; } //NavProp
     }
 }
