@@ -22,6 +22,9 @@
   - Microsoft.VisualStudio.Web.CodeGeneration.Design v3.1.4
 - Modell-klasser för att hantera data över många tabeller i databasen.
 - Kontroller för att sköta indata och utdata med json.
+- programmet är en del av en större arkitektur. Detta är API-delen:
+
+![Arkitektur](CompleteArchitecture.png)
 
 ##  För en applikation i produktion
 
