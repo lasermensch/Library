@@ -4,7 +4,7 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "https://library20210114121346.azurewebsites.net/",
+      "applicationUrl": "http://localhost:65144",
       "sslPort": 44303
     }
   },
